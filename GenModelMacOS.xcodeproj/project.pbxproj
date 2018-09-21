@@ -14,6 +14,11 @@
 		1ABCE9052154EC0D003980DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE9042154EC0D003980DB /* main.m */; };
 		1ABCE9102154EC0E003980DB /* GenModelMacOSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE90F2154EC0E003980DB /* GenModelMacOSTests.m */; };
 		1ABCE91B2154EC0E003980DB /* GenModelMacOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE91A2154EC0E003980DB /* GenModelMacOSUITests.m */; };
+		1ABCE92B2154EFB3003980DB /* AppInteractorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE9292154EFB3003980DB /* AppInteractorManager.m */; };
+		1ABCE9302154F07F003980DB /* ObservableObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE92D2154F07F003980DB /* ObservableObject.m */; };
+		1ABCE9352154F0D2003980DB /* ScriptDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE9342154F0D2003980DB /* ScriptDescription.m */; };
+		1ABCE9392154F0F7003980DB /* AppUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE9372154F0F7003980DB /* AppUtils.m */; };
+		1ABCE93D2154F195003980DB /* AppMainMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE93B2154F195003980DB /* AppMainMenu.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +55,18 @@
 		1ABCE9162154EC0E003980DB /* GenModelMacOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GenModelMacOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ABCE91A2154EC0E003980DB /* GenModelMacOSUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GenModelMacOSUITests.m; sourceTree = "<group>"; };
 		1ABCE91C2154EC0E003980DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1ABCE9292154EFB3003980DB /* AppInteractorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppInteractorManager.m; sourceTree = "<group>"; };
+		1ABCE92A2154EFB3003980DB /* AppInteractorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppInteractorManager.h; sourceTree = "<group>"; };
+		1ABCE92D2154F07F003980DB /* ObservableObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObservableObject.m; sourceTree = "<group>"; };
+		1ABCE92E2154F07F003980DB /* ObservableObject+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ObservableObject+Private.h"; sourceTree = "<group>"; };
+		1ABCE92F2154F07F003980DB /* ObservableObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObservableObject.h; sourceTree = "<group>"; };
+		1ABCE9332154F0D2003980DB /* ScriptDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptDescription.h; sourceTree = "<group>"; };
+		1ABCE9342154F0D2003980DB /* ScriptDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScriptDescription.m; sourceTree = "<group>"; };
+		1ABCE9372154F0F7003980DB /* AppUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppUtils.m; sourceTree = "<group>"; };
+		1ABCE9382154F0F7003980DB /* AppUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppUtils.h; sourceTree = "<group>"; };
+		1ABCE93A2154F14C003980DB /* GenModelMacOS_PrefixHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenModelMacOS_PrefixHeader.h; sourceTree = "<group>"; };
+		1ABCE93B2154F195003980DB /* AppMainMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppMainMenu.m; sourceTree = "<group>"; };
+		1ABCE93C2154F195003980DB /* AppMainMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppMainMenu.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,14 +117,17 @@
 		1ABCE8F72154EC0C003980DB /* GenModelMacOS */ = {
 			isa = PBXGroup;
 			children = (
-				1ABCE8F82154EC0C003980DB /* AppDelegate.h */,
-				1ABCE8F92154EC0C003980DB /* AppDelegate.m */,
+				1ABCE9362154F0F7003980DB /* Utils */,
+				1ABCE9322154F0D2003980DB /* Model */,
+				1ABCE9312154F082003980DB /* ThirdParty */,
+				1ABCE9282154EFA1003980DB /* AppComponent */,
 				1ABCE8FB2154EC0C003980DB /* ViewController.h */,
 				1ABCE8FC2154EC0C003980DB /* ViewController.m */,
 				1ABCE8FE2154EC0D003980DB /* Assets.xcassets */,
 				1ABCE9002154EC0D003980DB /* Main.storyboard */,
 				1ABCE9032154EC0D003980DB /* Info.plist */,
 				1ABCE9042154EC0D003980DB /* main.m */,
+				1ABCE93A2154F14C003980DB /* GenModelMacOS_PrefixHeader.h */,
 				1ABCE9062154EC0D003980DB /* GenModelMacOS.entitlements */,
 			);
 			path = GenModelMacOS;
@@ -129,6 +149,55 @@
 				1ABCE91C2154EC0E003980DB /* Info.plist */,
 			);
 			path = GenModelMacOSUITests;
+			sourceTree = "<group>";
+		};
+		1ABCE9282154EFA1003980DB /* AppComponent */ = {
+			isa = PBXGroup;
+			children = (
+				1ABCE8F82154EC0C003980DB /* AppDelegate.h */,
+				1ABCE8F92154EC0C003980DB /* AppDelegate.m */,
+				1ABCE93C2154F195003980DB /* AppMainMenu.h */,
+				1ABCE93B2154F195003980DB /* AppMainMenu.m */,
+				1ABCE92A2154EFB3003980DB /* AppInteractorManager.h */,
+				1ABCE9292154EFB3003980DB /* AppInteractorManager.m */,
+			);
+			path = AppComponent;
+			sourceTree = "<group>";
+		};
+		1ABCE92C2154F07F003980DB /* ObservableObject */ = {
+			isa = PBXGroup;
+			children = (
+				1ABCE92D2154F07F003980DB /* ObservableObject.m */,
+				1ABCE92E2154F07F003980DB /* ObservableObject+Private.h */,
+				1ABCE92F2154F07F003980DB /* ObservableObject.h */,
+			);
+			path = ObservableObject;
+			sourceTree = "<group>";
+		};
+		1ABCE9312154F082003980DB /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				1ABCE92C2154F07F003980DB /* ObservableObject */,
+			);
+			path = ThirdParty;
+			sourceTree = "<group>";
+		};
+		1ABCE9322154F0D2003980DB /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				1ABCE9332154F0D2003980DB /* ScriptDescription.h */,
+				1ABCE9342154F0D2003980DB /* ScriptDescription.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		1ABCE9362154F0F7003980DB /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				1ABCE9372154F0F7003980DB /* AppUtils.m */,
+				1ABCE9382154F0F7003980DB /* AppUtils.h */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -260,8 +329,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1ABCE92B2154EFB3003980DB /* AppInteractorManager.m in Sources */,
 				1ABCE8FD2154EC0C003980DB /* ViewController.m in Sources */,
 				1ABCE9052154EC0D003980DB /* main.m in Sources */,
+				1ABCE93D2154F195003980DB /* AppMainMenu.m in Sources */,
+				1ABCE9352154F0D2003980DB /* ScriptDescription.m in Sources */,
+				1ABCE9392154F0F7003980DB /* AppUtils.m in Sources */,
+				1ABCE9302154F07F003980DB /* ObservableObject.m in Sources */,
 				1ABCE8FA2154EC0C003980DB /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -428,6 +502,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = TX5SE2R2WN;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/GenModelMacOS/GenModelMacOS_PrefixHeader.h";
 				INFOPLIST_FILE = GenModelMacOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -446,6 +521,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = TX5SE2R2WN;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/GenModelMacOS/GenModelMacOS_PrefixHeader.h";
 				INFOPLIST_FILE = GenModelMacOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
