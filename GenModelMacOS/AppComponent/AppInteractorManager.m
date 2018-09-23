@@ -175,56 +175,69 @@
     return result;
 }
 
--(void)generateModel:(NSData *)data {
+-(NSMutableString *)createInterfaceWithKey:(NSString *)key name:(NSString **)interfaceName {
+    *interfaceName = [self createInterfaceNameFrom:key];
+    NSMutableString *interface = [[NSMutableString alloc] initWithFormat:@"//\n#import <Foundation/Foundation.h>\n\n@interface %@: NSObject\n\n", *interfaceName];
+    [self.interfaces addObject:interface];
+    return interface;
+}
+
+-(NSArray *)generateModel:(NSData *)data {
     NSError *error = nil;
     id jsonContent = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
     if (error) {
-        return;
+        return @[];
     }
     
     [self createDirAtPathIfNeeded:[self applicationDocumentsPath] error:nil];
     
     NSLog(@"===================== BEGIN =====================");
-    NSMutableString *interface = [[NSMutableString alloc] initWithString:@"//\n#import <Foundation/Foundation.h>\n\n@interface Datasource: NSObject\n\n"];
-    [self.interfaces addObject:interface];
-    [self analyzeContent:jsonContent key:@"Datasource" currentInterface:interface];
+    [self analyzeContent:jsonContent key:@"datasource" currentInterface:@""];
     NSLog(@"===================== END =====================");
+    
+    for (NSMutableString *string in self.interfaces) {
+        [string appendString:@"\n@end\n"];
+    }
+    
+    NSArray *result = [self.interfaces copy];
+    [self.interfaces removeAllObjects];
+    return result;
 }
 
--(void)analyzeContent:(id)jsonContent key:(NSString *)key currentInterface:(NSMutableString *)anInterface {
+-(void)analyzeContent:(id)jsonContent key:(NSString *)aKey currentInterface:(NSMutableString *)anInterface {
     if ([jsonContent isKindOfClass:[NSDictionary class]]) {
+        // create new interface with aKey
+        NSString *interfaceName;
+        NSMutableString *interface = [self createInterfaceWithKey:aKey name:&interfaceName];
+        if (![anInterface isEqualToString:@""]) {
+            [anInterface appendFormat:@"@property (nonatomic, strong) %@ *%@;\n", interfaceName, aKey];
+        }
+        
         NSDictionary *content = (NSDictionary *)jsonContent;
         NSArray *keys = content.allKeys;
-        [anInterface appendFormat:@"@property (nonatomic, strong) %@ *%@\n", [self createInterfaceNameFrom:key], key];
-        NSMutableString *interface = [[NSMutableString alloc] initWithFormat:@"//\n#import <Foundation/Foundation.h>\n\n@interface %@: NSObject\n\n", key];
-        [self.interfaces addObject:interface];
         for (NSString *key in keys) {
             id value = content[key];
             [self analyzeContent:value key:key currentInterface:interface];
         }
     }
     else if ([jsonContent isKindOfClass:[NSArray class]]) {
-        NSArray *contents = (NSArray *)jsonContent;
-        [interface appendFormat:@"@property (nonatomic, strong) NSArray *%@\n", key];
-        for (id content in contents) {
-            [self analyzeContent:content key:key];
-        }
+        [anInterface appendFormat:@"@property (nonatomic, strong) NSArray *%@;\n", aKey];
     }
     else {
         NSString *contentType = NSStringFromClass([jsonContent class]);
         if ([contentType containsString:@"String"]) {
-            [interface appendFormat:@"@property (nonatomic, copy) NSString *%@\n", key];
+            [anInterface appendFormat:@"@property (nonatomic, copy) NSString *%@;\n", aKey];
         }
         else if ([contentType containsString:@"Bool"]) {
-            [interface appendFormat:@"@property (nonatomic, assign) BOOL %@\n", key];
+            [anInterface appendFormat:@"@property (nonatomic, assign) BOOL %@;\n", aKey];
         }
         else if ([contentType containsString:@"Number"]) {
-            [interface appendFormat:@"@property (nonatomic, strong) NSNumber *%@\n", key];
+            [anInterface appendFormat:@"@property (nonatomic, strong) NSNumber *%@;\n", aKey];
         }
         else {
-            [interface appendFormat:@"@property (nonatomic, strong) UnknownKey *%@\n", key];
+            [anInterface appendFormat:@"@property (nonatomic, strong) UnknownKey *%@;\n", aKey];
         }
-        NSLog(@"key: %@ - value: %@ - %@", key, jsonContent, NSStringFromClass([jsonContent class]));
+        NSLog(@"key: %@ - value: %@ - %@", aKey, jsonContent, NSStringFromClass([jsonContent class]));
     }
 }
 

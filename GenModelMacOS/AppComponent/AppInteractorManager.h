@@ -35,6 +35,6 @@ typedef enum : NSUInteger {
 -(NSString *)applicationDocumentPathForFile:(NSString *)fileName;
 -(BOOL)saveFile:(NSString *)fileContent withPath:(NSString *)filePath;
 
--(void)generateModel:(NSData *)data;
+-(NSArray *)generateModel:(NSData *)data;
 
 @end
