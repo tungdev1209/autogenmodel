@@ -36,5 +36,9 @@
     [self.mainView btnGenereatePressed];
 }
 
+-(void)chooseLanguage:(CodeLanguage)language {
+    
+}
+
 
 @end

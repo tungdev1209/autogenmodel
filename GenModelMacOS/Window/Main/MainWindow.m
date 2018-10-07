@@ -23,4 +23,19 @@
     [(MainViewController *)self.contentViewController generateButtonPressed];
 }
 
+-(IBAction)codeLanguageTapped:(NSButton *)sender {
+    CodeLanguage currentLanguage = [AppInteractorManager shared].language;
+    [[AppInteractorManager shared] setLanguage:(currentLanguage == CodeLanguageSwift ? CodeLanguageObjectiveC : CodeLanguageSwift)];
+    [sender setTitle:[self titleForLanguage:[AppInteractorManager shared].language]];
+}
+
+-(NSString *)titleForLanguage:(CodeLanguage)lang {
+    if (lang == CodeLanguageObjectiveC) {
+        return @"Objective-C";
+    }
+    else {
+        return @"Swift";
+    }
+}
+
 @end

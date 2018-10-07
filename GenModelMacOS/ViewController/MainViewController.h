@@ -11,6 +11,7 @@
 @interface MainViewController : NSViewController
 
 -(void)generateButtonPressed;
+-(void)chooseLanguage:(CodeLanguage)language;
 
 @end
 

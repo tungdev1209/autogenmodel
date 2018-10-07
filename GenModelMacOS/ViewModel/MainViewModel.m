@@ -18,7 +18,7 @@
 
 -(dispatch_queue_t)requestQueue {
     if (!_requestQueue) {
-        _requestQueue = dispatch_queue_create("com.tung.testrequest", DISPATCH_QUEUE_SERIAL);
+        _requestQueue = dispatch_queue_create("com.tung.genmodel", DISPATCH_QUEUE_SERIAL);
     }
     return _requestQueue;
 }

@@ -51,6 +51,7 @@
         self.menuTappingQueue = dispatch_queue_create("autogenviper.appdatamanager.menutapping", DISPATCH_QUEUE_SERIAL);
         
         self.interfaces = [[NSMutableArray alloc] init];
+        self.language = CodeLanguageObjectiveC;
         
         __weak typeof(self) weakSelf = self;
         [[NSNotificationCenter defaultCenter] addObserverForName:NSMenuWillSendActionNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
@@ -177,7 +178,21 @@
 
 -(NSMutableString *)createInterfaceWithKey:(NSString *)key name:(NSString **)interfaceName {
     *interfaceName = [self createInterfaceNameFrom:key];
-    NSMutableString *interface = [[NSMutableString alloc] initWithFormat:@"//\n#import <Foundation/Foundation.h>\n\n@interface %@: NSObject\n\n", *interfaceName];
+    NSMutableString *interface;
+    switch (self.language) {
+        case CodeLanguageObjectiveC: {
+            interface = [[NSMutableString alloc] initWithFormat:@"//\n#import <Foundation/Foundation.h>\n\n@interface %@: NSObject\n\n", *interfaceName];
+        }
+            break;
+            
+        case CodeLanguageSwift: {
+            interface = [[NSMutableString alloc] initWithFormat:@"//\nimport UIKit\n\nclass %@: NSObject {\n", *interfaceName];
+        }
+            break;
+            
+        default:
+            break;
+    }
     [self.interfaces addObject:interface];
     return interface;
 }
@@ -189,14 +204,23 @@
         return @[];
     }
     
-    [self createDirAtPathIfNeeded:[self applicationDocumentsPath] error:nil];
-    
     NSLog(@"===================== BEGIN =====================");
-    [self analyzeContent:jsonContent key:@"datasource" currentInterface:@""];
+    [self analyzeContent:jsonContent key:@"datasource" currentInterface:[@"" mutableCopy]];
     NSLog(@"===================== END =====================");
     
     for (NSMutableString *string in self.interfaces) {
-        [string appendString:@"\n@end\n"];
+        switch (self.language) {
+            case CodeLanguageObjectiveC:
+                [string appendString:@"\n@end\n"];
+                break;
+                
+            case CodeLanguageSwift:
+                [string appendString:@"}\n"];
+                break;
+                
+            default:
+                break;
+        }
     }
     
     NSArray *result = [self.interfaces copy];
@@ -210,7 +234,7 @@
         NSString *interfaceName;
         NSMutableString *interface = [self createInterfaceWithKey:aKey name:&interfaceName];
         if (![anInterface isEqualToString:@""]) {
-            [anInterface appendFormat:@"@property (nonatomic, strong) %@ *%@;\n", interfaceName, aKey];
+            [anInterface appendString:[self generateObjectProperty:interfaceName keyName:aKey]];
         }
         
         NSDictionary *content = (NSDictionary *)jsonContent;
@@ -221,24 +245,92 @@
         }
     }
     else if ([jsonContent isKindOfClass:[NSArray class]]) {
-        [anInterface appendFormat:@"@property (nonatomic, strong) NSArray *%@;\n", aKey];
+        [anInterface appendString:[self gennerateArrayProperty:aKey]];
     }
     else {
         NSString *contentType = NSStringFromClass([jsonContent class]);
-        if ([contentType containsString:@"String"]) {
-            [anInterface appendFormat:@"@property (nonatomic, copy) NSString *%@;\n", aKey];
-        }
-        else if ([contentType containsString:@"Bool"]) {
-            [anInterface appendFormat:@"@property (nonatomic, assign) BOOL %@;\n", aKey];
-        }
-        else if ([contentType containsString:@"Number"]) {
-            [anInterface appendFormat:@"@property (nonatomic, strong) NSNumber *%@;\n", aKey];
-        }
-        else {
-            [anInterface appendFormat:@"@property (nonatomic, strong) UnknownKey *%@;\n", aKey];
-        }
+        [anInterface appendString:[self generateCommonPropertyForType:contentType keyName:aKey]];
         NSLog(@"key: %@ - value: %@ - %@", aKey, jsonContent, NSStringFromClass([jsonContent class]));
     }
+}
+
+-(NSString *)generateObjectProperty:(NSString *)object keyName:(NSString *)keyName {
+    NSString *property = @"";
+    switch (self.language) {
+        case CodeLanguageObjectiveC: {
+            property = [NSString stringWithFormat:@"@property (nonatomic, strong) %@ *%@;\n", object, keyName];
+        }
+            break;
+            
+        case CodeLanguageSwift: {
+            property = [NSString stringWithFormat:@"    var %@: %@?", keyName, object];
+        }
+            break;
+            
+        default:
+            break;
+    }
+    return property;
+}
+
+-(NSString *)gennerateArrayProperty:(NSString *)keyName {
+    NSString *property = @"";
+    switch (self.language) {
+        case CodeLanguageObjectiveC: {
+            property = [NSString stringWithFormat:@"@property (nonatomic, strong) NSArray *%@;\n", keyName];
+        }
+            break;
+            
+        case CodeLanguageSwift: {
+            property = [NSString stringWithFormat:@"    var %@: Array<AnyObject>?", keyName];
+        }
+            break;
+            
+        default:
+            break;
+    }
+    return property;
+}
+
+-(NSString *)generateCommonPropertyForType:(NSString *)type keyName:(NSString *)keyName {
+    NSString *property = @"";
+    switch (self.language) {
+        case CodeLanguageSwift: {
+            if ([type containsString:@"String"]) {
+                property = [NSString stringWithFormat:@"    var %@: String? \n", keyName];
+            }
+            else if ([type containsString:@"Bool"]) {
+                property = [NSString stringWithFormat:@"    var %@ = false\n", keyName];
+            }
+            else if ([type containsString:@"Number"]) {
+                property = [NSString stringWithFormat:@"    var %@: Number?\n", keyName];
+            }
+            else {
+                property = [NSString stringWithFormat:@"    var %@: Any?\n", keyName];
+            }
+        }
+            break;
+            
+        case CodeLanguageObjectiveC: {
+            if ([type containsString:@"String"]) {
+                property = [NSString stringWithFormat:@"@property (nonatomic, copy) NSString *%@;\n", keyName];
+            }
+            else if ([type containsString:@"Bool"]) {
+                property = [NSString stringWithFormat:@"@property (nonatomic, assign) BOOL %@;\n", keyName];
+            }
+            else if ([type containsString:@"Number"]) {
+                property = [NSString stringWithFormat:@"@property (nonatomic, strong) NSNumber *%@;\n", keyName];
+            }
+            else {
+                property = [NSString stringWithFormat:@"@property (nonatomic, strong) UnknownKey *%@;\n", keyName];
+            }
+        }
+            break;
+            
+        default:
+            break;
+    }
+    return property;
 }
 
 -(NSString *)generateVIPERfiles:(ScriptDescription *)scriptDes {

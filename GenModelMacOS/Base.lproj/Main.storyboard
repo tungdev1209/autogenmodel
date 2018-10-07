@@ -697,30 +697,41 @@
                                 <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="iuE-Uh-mv3"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="AOM-mo-3bn"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="h39-bu-2MA"/>
-                                <toolbarItem implicitItemIdentifier="571FEB35-5B49-4145-BC43-9F52E77D5664" explicitItemIdentifier="Generate" label="Generate" paletteLabel="Generate" sizingBehavior="auto" id="9Sl-1j-8qJ">
+                                <toolbarItem implicitItemIdentifier="FE6AFD9A-74C3-4587-B464-5E8EFD78B3C7" label="Generate" paletteLabel="Generate" sizingBehavior="auto" id="rjY-XW-kar">
                                     <nil key="toolTip"/>
-                                    <button key="view" verticalHuggingPriority="750" id="w9q-yj-OuN">
-                                        <rect key="frame" x="0.0" y="14" width="65" height="32"/>
+                                    <button key="view" verticalHuggingPriority="750" id="jvB-dN-QN9">
+                                        <rect key="frame" x="0.0" y="14" width="82" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="53" id="UOM-s3-KWv"/>
-                                            <constraint firstAttribute="height" constant="21" id="Zvf-6w-2o6"/>
-                                        </constraints>
-                                        <buttonCell key="cell" type="push" title="=&gt;" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hZ0-aS-dIW">
+                                        <buttonCell key="cell" type="square" title="=&gt;" bezelStyle="shadowlessSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4Ud-JD-Wfs">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
+                                            <font key="font" metaFont="systemBold" size="15"/>
                                         </buttonCell>
+                                        <connections>
+                                            <action selector="genItemTapped:" target="IQv-IB-iLA" id="sQ3-HD-4JV"/>
+                                        </connections>
                                     </button>
-                                    <connections>
-                                        <action selector="genItemTapped:" target="IQv-IB-iLA" id="1w8-T0-jsu"/>
-                                    </connections>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="0A14097F-072F-4752-9021-9AAC74F8D7F1" label="Language" paletteLabel="Language" sizingBehavior="auto" id="F5X-Fw-tcE">
+                                    <nil key="toolTip"/>
+                                    <button key="view" verticalHuggingPriority="750" id="vKb-wx-kP2">
+                                        <rect key="frame" x="0.0" y="14" width="90" height="34"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="square" title="Objective-C" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="D6w-bW-6jv">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="systemBold" size="14"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="codeLanguageTapped:" target="IQv-IB-iLA" id="k8f-yD-mdw"/>
+                                        </connections>
+                                    </button>
                                 </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
                                 <toolbarItem reference="BZn-Oq-WmZ"/>
                                 <toolbarItem reference="JxW-yJ-HAW"/>
+                                <toolbarItem reference="F5X-Fw-tcE"/>
                                 <toolbarItem reference="h39-bu-2MA"/>
-                                <toolbarItem reference="9Sl-1j-8qJ"/>
+                                <toolbarItem reference="rjY-XW-kar"/>
                             </defaultToolbarItems>
                         </toolbar>
                         <connections>

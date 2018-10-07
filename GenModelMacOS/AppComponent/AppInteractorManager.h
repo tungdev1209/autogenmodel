@@ -25,6 +25,8 @@ typedef enum : NSUInteger {
 @property (nonatomic, copy) NSString *applicationDocumentsPath;
 @property (nonatomic, assign) MenuKeySelector menuSelectorTapped;
 
+@property (nonatomic, assign) CodeLanguage language;
+
 +(instancetype)shared;
 -(void)loadFilesToDocumentDir;
 -(void)loadOriginalFileToAppDocumentsDirectory:(NSString *)fileName replace:(BOOL)isReplace;
