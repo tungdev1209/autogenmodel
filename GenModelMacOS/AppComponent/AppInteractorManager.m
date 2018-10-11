@@ -29,6 +29,8 @@
 @property (nonatomic, strong) dispatch_queue_t menuTappingQueue;
 
 @property (nonatomic, strong) NSMutableArray *interfaces;
+@property (nonatomic, strong) NSMutableArray *decoders;
+@property (nonatomic, strong) NSMutableArray *codingKeys;
 
 @end
 
@@ -51,6 +53,8 @@
         self.menuTappingQueue = dispatch_queue_create("autogenviper.appdatamanager.menutapping", DISPATCH_QUEUE_SERIAL);
         
         self.interfaces = [[NSMutableArray alloc] init];
+        self.decoders = [[NSMutableArray alloc] init];
+        self.codingKeys = [[NSMutableArray alloc] init];
         self.language = CodeLanguageObjectiveC;
         
         __weak typeof(self) weakSelf = self;
@@ -161,6 +165,52 @@
     }
 }
 
+-(NSArray *)generateModel:(NSData *)data {
+    NSError *error = nil;
+    id jsonContent = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
+    if (error) {
+        return @[];
+    }
+    
+    NSLog(@"===================== BEGIN =====================");
+    [self analyzeContent:jsonContent key:@"datasource" currentComponents:@[[@"" mutableCopy]]];
+    NSLog(@"===================== END =====================");
+    
+    [self appendEndSymbol];
+    
+    NSArray *result = [self.interfaces copy];
+    [self.interfaces removeAllObjects];
+    [self.codingKeys removeAllObjects];
+    [self.decoders removeAllObjects];
+    return result;
+}
+
+-(void)appendEndSymbol {
+    int interfacesCount = (int)self.interfaces.count;
+    for (int i = 0; i < interfacesCount; i++) {
+        NSMutableString *interface = self.interfaces[i];
+        switch (self.language) {
+            case CodeLanguageObjectiveC:
+                [interface appendString:@"\n@end\n"];
+                break;
+                
+            case CodeLanguageSwift: {
+                NSMutableString *codingKey = self.codingKeys[i];
+                NSMutableString *decoder = self.decoders[i];
+                [codingKey appendString:@"\t}\n"];
+                [decoder appendString:@"\t}\n"];
+                [interface appendString:codingKey];
+                [interface appendString:decoder];
+                [interface appendString:@"}\n"];
+            }
+                break;
+                
+            default:
+                break;
+        }
+    }
+}
+
 -(NSString *)createInterfaceNameFrom:(NSString *)inputString {
     /* create a locale where diacritic marks are not considered important, e.g. US English */
     NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en-US"];
@@ -176,17 +226,30 @@
     return result;
 }
 
--(NSMutableString *)createInterfaceWithKey:(NSString *)key name:(NSString **)interfaceName {
+-(NSArray *)createInterfaceWithKey:(NSString *)key name:(NSString **)interfaceName {
     *interfaceName = [self createInterfaceNameFrom:key];
     NSMutableString *interface;
+    NSMutableArray *components = [[NSMutableArray alloc] init];
     switch (self.language) {
         case CodeLanguageObjectiveC: {
             interface = [[NSMutableString alloc] initWithFormat:@"//\n#import <Foundation/Foundation.h>\n\n@interface %@: NSObject\n\n", *interfaceName];
+            [components addObject:interface];
         }
             break;
             
         case CodeLanguageSwift: {
-            interface = [[NSMutableString alloc] initWithFormat:@"//\nimport UIKit\n\nclass %@: NSObject {\n", *interfaceName];
+            interface = [[NSMutableString alloc] initWithFormat:@"//\nimport UIKit\n\nstruct %@: Codable {\n", *interfaceName];
+            
+            NSMutableString *codingKey = [[NSMutableString alloc] initWithFormat:@"\n\tprivate enum CodingKeys: String, CodingKey {\n"];
+            [self.codingKeys addObject:codingKey];
+            
+            NSMutableString *decoder = [[NSMutableString alloc] initWithFormat:@"\n\tinit(from decoder: Decoder) throws {\n"];
+            [decoder appendString:@"\t\tlet container = try decoder.container(keyedBy: CodingKeys.self)\n"];
+            [self.decoders addObject:decoder];
+            
+            [components addObject:interface];
+            [components addObject:codingKey];
+            [components addObject:decoder];
         }
             break;
             
@@ -194,64 +257,46 @@
             break;
     }
     [self.interfaces addObject:interface];
-    return interface;
+    return components;
 }
 
--(NSArray *)generateModel:(NSData *)data {
-    NSError *error = nil;
-    id jsonContent = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
-    if (error) {
-        return @[];
-    }
-    
-    NSLog(@"===================== BEGIN =====================");
-    [self analyzeContent:jsonContent key:@"datasource" currentInterface:[@"" mutableCopy]];
-    NSLog(@"===================== END =====================");
-    
-    for (NSMutableString *string in self.interfaces) {
-        switch (self.language) {
-            case CodeLanguageObjectiveC:
-                [string appendString:@"\n@end\n"];
-                break;
-                
-            case CodeLanguageSwift:
-                [string appendString:@"}\n"];
-                break;
-                
-            default:
-                break;
-        }
-    }
-    
-    NSArray *result = [self.interfaces copy];
-    [self.interfaces removeAllObjects];
-    return result;
-}
-
--(void)analyzeContent:(id)jsonContent key:(NSString *)aKey currentInterface:(NSMutableString *)anInterface {
+-(void)analyzeContent:(id)jsonContent key:(NSString *)aKey currentComponents:(NSArray *)aComponents {
+    NSMutableString *anInterface = (NSMutableString *)aComponents.firstObject;
     if ([jsonContent isKindOfClass:[NSDictionary class]]) {
         // create new interface with aKey
         NSString *interfaceName;
-        NSMutableString *interface = [self createInterfaceWithKey:aKey name:&interfaceName];
+        NSArray *components = [self createInterfaceWithKey:aKey name:&interfaceName];
+        
         if (![anInterface isEqualToString:@""]) {
             [anInterface appendString:[self generateObjectProperty:interfaceName keyName:aKey]];
+            [self generateCodingKeyAndDecoder:aComponents keyName:aKey keyType:interfaceName];
         }
         
         NSDictionary *content = (NSDictionary *)jsonContent;
-        NSArray *keys = content.allKeys;
-        for (NSString *key in keys) {
+        for (NSString *key in content.allKeys) {
             id value = content[key];
-            [self analyzeContent:value key:key currentInterface:interface];
+            [self analyzeContent:value key:key currentComponents:components];
         }
     }
     else if ([jsonContent isKindOfClass:[NSArray class]]) {
         [anInterface appendString:[self gennerateArrayProperty:aKey]];
+        [self generateCodingKeyAndDecoder:aComponents keyName:aKey keyType:@"[Any]"];
     }
     else {
         NSString *contentType = NSStringFromClass([jsonContent class]);
-        [anInterface appendString:[self generateCommonPropertyForType:contentType keyName:aKey]];
+        NSString *keyType = @"";
+        [anInterface appendString:[self generateCommonPropertyForType:contentType keyName:aKey keyType:&keyType]];
+        [self generateCodingKeyAndDecoder:aComponents keyName:aKey keyType:keyType];
         NSLog(@"key: %@ - value: %@ - %@", aKey, jsonContent, NSStringFromClass([jsonContent class]));
     }
+}
+
+-(void)generateCodingKeyAndDecoder:(NSArray *)components keyName:(NSString *)key keyType:(NSString *)keyType {
+    if (self.language == CodeLanguageObjectiveC) return;
+    NSMutableString *codingKey = (NSMutableString *)components[1];
+    NSMutableString *decoder = (NSMutableString *)components[2];
+    [codingKey appendFormat:@"\t\tcase %@\n", key];
+    [decoder appendFormat:@"\t\t%@ = try container.decode(%@.self, forKey: .%@)\n", key, keyType, key];
 }
 
 -(NSString *)generateObjectProperty:(NSString *)object keyName:(NSString *)keyName {
@@ -263,7 +308,7 @@
             break;
             
         case CodeLanguageSwift: {
-            property = [NSString stringWithFormat:@"    var %@: %@?", keyName, object];
+            property = [NSString stringWithFormat:@"\tlet %@: %@\n", keyName, object];
         }
             break;
             
@@ -282,7 +327,7 @@
             break;
             
         case CodeLanguageSwift: {
-            property = [NSString stringWithFormat:@"    var %@: Array<AnyObject>?", keyName];
+            property = [NSString stringWithFormat:@"\tlet %@: [Any]\n", keyName];
         }
             break;
             
@@ -292,21 +337,25 @@
     return property;
 }
 
--(NSString *)generateCommonPropertyForType:(NSString *)type keyName:(NSString *)keyName {
+-(NSString *)generateCommonPropertyForType:(NSString *)type keyName:(NSString *)keyName keyType:(NSString **)keyType {
     NSString *property = @"";
     switch (self.language) {
         case CodeLanguageSwift: {
             if ([type containsString:@"String"]) {
-                property = [NSString stringWithFormat:@"    var %@: String? \n", keyName];
+                property = [NSString stringWithFormat:@"\tlet %@: String\n", keyName];
+                *keyType = @"String";
             }
             else if ([type containsString:@"Bool"]) {
-                property = [NSString stringWithFormat:@"    var %@ = false\n", keyName];
+                property = [NSString stringWithFormat:@"\tlet %@: Bool\n", keyName];
+                *keyType = @"Bool";
             }
             else if ([type containsString:@"Number"]) {
-                property = [NSString stringWithFormat:@"    var %@: Number?\n", keyName];
+                property = [NSString stringWithFormat:@"\tlet %@: Int\n", keyName];
+                *keyType = @"Int";
             }
             else {
-                property = [NSString stringWithFormat:@"    var %@: Any?\n", keyName];
+                property = [NSString stringWithFormat:@"\tlet %@: Any\n", keyName];
+                *keyType = @"Any";
             }
         }
             break;
