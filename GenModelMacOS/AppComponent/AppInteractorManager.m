@@ -296,9 +296,25 @@
     NSMutableString *codingKey = (NSMutableString *)components[1];
     NSMutableString *decoder = (NSMutableString *)components[2];
     [codingKey appendFormat:@"\t\tcase %@\n", key];
-    [decoder appendFormat:@"\t\t%@ = try container.decode(%@.self, forKey: .%@)\n", key, keyType, key];
+    [decoder appendFormat:@"\t\t%@ = container.decode(.%@, defaultValue: %@)\n", key, key, [self getDefaultValueFor:keyType]];
 }
 
+-(NSString *)getDefaultValueFor:(NSString *)type {
+    if ([type isEqualToString:@"String"]) {
+        return @"\"\"";
+    }
+    else if ([type isEqualToString:@"Int"]) {
+        return @"0";
+    }
+    else if ([type isEqualToString:@"Bool"]) {
+        return @"false";
+    }
+    else if ([type isEqualToString:@"Double"] || [type isEqualToString:@"Double"]) {
+        return @"0.0";
+    }
+    return type;
+}
+    
 -(NSString *)generateObjectProperty:(NSString *)object keyName:(NSString *)keyName {
     NSString *property = @"";
     switch (self.language) {
