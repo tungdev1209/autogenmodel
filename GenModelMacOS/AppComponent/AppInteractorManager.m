@@ -269,7 +269,7 @@
         
         if (![anInterface isEqualToString:@""]) {
             [anInterface appendString:[self generateObjectProperty:interfaceName keyName:aKey]];
-            [self generateCodingKeyAndDecoder:aComponents keyName:aKey keyType:interfaceName];
+            [self generateCodingKeyAndDecoder:aComponents keyName:aKey keyType:interfaceName isObject:YES];
         }
         
         NSDictionary *content = (NSDictionary *)jsonContent;
@@ -292,11 +292,20 @@
 }
 
 -(void)generateCodingKeyAndDecoder:(NSArray *)components keyName:(NSString *)key keyType:(NSString *)keyType {
+    [self generateCodingKeyAndDecoder:components keyName:key keyType:keyType isObject:NO];
+}
+
+-(void)generateCodingKeyAndDecoder:(NSArray *)components keyName:(NSString *)key keyType:(NSString *)keyType isObject:(BOOL)isObject {
     if (self.language == CodeLanguageObjectiveC) return;
     NSMutableString *codingKey = (NSMutableString *)components[1];
     NSMutableString *decoder = (NSMutableString *)components[2];
     [codingKey appendFormat:@"\t\tcase %@\n", key];
-    [decoder appendFormat:@"\t\t%@ = container.decode(.%@, defaultValue: %@)\n", key, key, [self getDefaultValueFor:keyType]];
+    if (isObject) {
+        [decoder appendFormat:@"\t\t%@ = container.decode(.%@, defaultType: %@.self)\n", key, key, keyType];
+    }
+    else {
+        [decoder appendFormat:@"\t\t%@ = container.decode(.%@, defaultValue: %@)\n", key, key, [self getDefaultValueFor:keyType]];
+    }
 }
 
 -(NSString *)getDefaultValueFor:(NSString *)type {
@@ -309,7 +318,7 @@
     else if ([type isEqualToString:@"Bool"]) {
         return @"false";
     }
-    else if ([type isEqualToString:@"Double"] || [type isEqualToString:@"Double"]) {
+    else if ([type isEqualToString:@"Double"] || [type isEqualToString:@"Float"]) {
         return @"0.0";
     }
     return type;
