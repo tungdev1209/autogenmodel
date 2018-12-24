@@ -17,16 +17,33 @@
 
 - (void)awakeFromNib {
     [super awakeFromNib];
+    [self checkLanguageState];
 }
 
 -(IBAction)genItemTapped:(id)sender {
     [(MainViewController *)self.contentViewController generateButtonPressed];
 }
 
+-(IBAction)useKeyCodingExtension:(NSButton *)sender {
+    NSLog(@"sender: %ld", (long)sender.state);
+    [[AppInteractorManager shared] setHasKeyCodingExt:sender.state == NSOnState];
+}
+
 -(IBAction)codeLanguageTapped:(NSButton *)sender {
     CodeLanguage currentLanguage = [AppInteractorManager shared].language;
     [[AppInteractorManager shared] setLanguage:(currentLanguage == CodeLanguageSwift ? CodeLanguageObjectiveC : CodeLanguageSwift)];
     [sender setTitle:[self titleForLanguage:[AppInteractorManager shared].language]];
+    
+    [self checkLanguageState];
+}
+
+-(void)checkLanguageState {
+    if ([AppInteractorManager shared].language == CodeLanguageObjectiveC) {
+        [self.toolbar removeItemAtIndex:3];
+    }
+    else {
+        [self.toolbar insertItemWithItemIdentifier:@"KeyCodingExtension" atIndex:3];
+    }
 }
 
 -(NSString *)titleForLanguage:(CodeLanguage)lang {

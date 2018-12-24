@@ -8,34 +8,15 @@
 
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
-#import "ScriptDescription.h"
 #import "ObservableObject.h"
+#import "AppUtils.h"
 
-#define kASResultReplace @"Replace"
-#define kASResultYES @"YES"
-#define kASResultGemPath @"gempath"
-
-typedef enum : NSUInteger {
-    MenuKeySelectorSaveDocument,
-} MenuKeySelector;
-
-@interface AppInteractorManager : ObservableObject
-
-@property (nonatomic, strong) NSMenuItem *menuItemTapped;
-@property (nonatomic, copy) NSString *applicationDocumentsPath;
-@property (nonatomic, assign) MenuKeySelector menuSelectorTapped;
+@interface AppInteractorManager: ObservableObject
 
 @property (nonatomic, assign) CodeLanguage language;
+@property (nonatomic, assign) BOOL hasKeyCodingExt;
 
 +(instancetype)shared;
--(void)loadFilesToDocumentDir;
--(void)loadOriginalFileToAppDocumentsDirectory:(NSString *)fileName replace:(BOOL)isReplace;
--(NSString *)contentOfOriginalFile:(NSString *)fileName;
--(NSString *)generateVIPERfiles:(ScriptDescription *)scriptDes;
--(NSString *)runScript:(ScriptDescription *)scriptDescription;
--(NSString *)applicationDocumentsPath;
--(NSString *)applicationDocumentPathForFile:(NSString *)fileName;
--(BOOL)saveFile:(NSString *)fileContent withPath:(NSString *)filePath;
 
 -(NSArray *)generateModel:(NSData *)data;
 

@@ -266,11 +266,13 @@ static dispatch_queue_t getUUIDQueue() {
 
 #pragma mark add/remove funcs
 -(void)addObservingProperties {
+    __weak typeof(self) weakSelf = self;
     dispatch_sync(self.observerQueue, ^{
-        if (_obsAdded) {
+        typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf.obsAdded) {
             return;
         }
-        _obsAdded = YES;
+        strongSelf.obsAdded = YES;
         
         [self addObservingPropertiesForObject:self];
     });
@@ -296,11 +298,13 @@ static dispatch_queue_t getUUIDQueue() {
 }
 
 -(void)removeObservingProperties {
+    __weak typeof(self) weakSelf = self;
     dispatch_sync(self.observerQueue, ^{
-        if (_obsAdded) {
+        typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf.obsAdded) {
             [self removeObservingPropertiesForObject:self];
         }
-        _obsAdded = NO;
+        strongSelf.obsAdded = NO;
     });
 }
 

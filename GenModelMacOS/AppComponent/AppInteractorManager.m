@@ -9,19 +9,6 @@
 #import "AppInteractorManager.h"
 
 #define AppPath @"GenerateModel"
-#define SourceCodeFiles @[@"Interactor_m", @"Interactor_h", @"Presenter_m", @"Presenter_h", @"Wireframe_m", @"Wireframe_h", @"Protocols_h", @"Interactor_swift", @"Presenter_swift", @"Wireframe_swift", @"Protocols_swift"]
-#define kInteractor @"Interactor"
-#define kPresenter @"Presenter"
-#define kWireframe @"Wireframe"
-#define kProtocols @"Protocols"
-#define SourceCodeFilesTree @{kInteractor: @[@"Interactor_m", @"Interactor_h"],   \
-                              kPresenter : @[@"Presenter_m", @"Presenter_h"],     \
-                              kWireframe : @[@"Wireframe_m", @"Wireframe_h"],     \
-                              kProtocols : @[@"Protocols_h"]}
-#define SourceCodeSwiftFilesTree  @{kInteractor: @[@"Interactor_swift"],   \
-                                    kPresenter : @[@"Presenter_swift"],    \
-                                    kWireframe : @[@"Wireframe_swift"],    \
-                                    kProtocols : @[@"Protocols_swift"]}
 
 @interface AppInteractorManager()
 
@@ -56,113 +43,8 @@
         self.decoders = [[NSMutableArray alloc] init];
         self.codingKeys = [[NSMutableArray alloc] init];
         self.language = CodeLanguageObjectiveC;
-        
-        __weak typeof(self) weakSelf = self;
-        [[NSNotificationCenter defaultCenter] addObserverForName:NSMenuWillSendActionNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            dispatch_async(self.menuTappingQueue, ^{
-                strongSelf.menuItemTapped = (NSMenuItem *)note.userInfo[@"MenuItem"];
-                NSString *menuTitle = strongSelf.menuItemTapped.title;
-                if ([NSStringFromSelector(strongSelf.menuItemTapped.action) isEqualToString:@"saveDocument:"]) {
-                    strongSelf.menuSelectorTapped = MenuKeySelectorSaveDocument;
-                }
-                else {
-                    
-                }
-            });
-        }];
-        
-        [[NSNotificationCenter defaultCenter] addObserverForName:NSMenuDidSendActionNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-            
-        }];
     }
     return self;
-}
-
--(void)loadFilesToDocumentDir {
-    if ([self checkAndCreateAppDocumentsDirectory]) {
-        [self loadOriginalFilesToAppDocumentsDirectoryWithReplace:NO];
-    }
-}
-
--(void)loadOriginalFilesToAppDocumentsDirectoryWithReplace:(BOOL)replace {
-    for (NSString *fileName in SourceCodeFiles) {
-        [self loadOriginalFileToAppDocumentsDirectory:fileName replace:replace];
-    }
-}
-
--(NSString *)applicationDocumentsPath {
-    if (!_applicationDocumentsPath) {
-        _applicationDocumentsPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:AppPath];
-        NSLog(@"%@", _applicationDocumentsPath);
-    }
-    return _applicationDocumentsPath;
-}
-
--(NSString *)applicationDocumentPathForFile:(NSString *)fileName {
-    return [[self applicationDocumentsPath] stringByAppendingPathComponent:fileName];
-}
-
--(BOOL)checkAndCreateAppDocumentsDirectory {
-    __block BOOL result = NO;
-    dispatch_sync(self.fileManagerQueue, ^{
-        NSString *appPath = [self applicationDocumentsPath];
-        NSLog(@"App path: %@", appPath);
-        NSError *error = nil;
-        [self createDirAtPathIfNeeded:appPath error:&error];
-        if (error) {
-            NSLog(@"Could not create app dir - error: %@", error);
-        }
-        result = !error;
-    });
-    return result;
-}
-
--(NSString *)contentOfOriginalFile:(NSString *)fileName {
-    NSString *filePath = [[NSBundle mainBundle] pathForResource:fileName ofType:@"txt"];
-    return [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
-}
-
--(void)loadOriginalFileToAppDocumentsDirectory:(NSString *)fileName replace:(BOOL)isReplace {
-    dispatch_sync(self.fileManagerQueue, ^{
-        NSString *filePath = [[NSBundle mainBundle] pathForResource:fileName ofType:@"txt"];
-        NSString *appFilePath = [[self applicationDocumentsPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.txt", fileName]];
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        if ([fileManager fileExistsAtPath:appFilePath]) {
-            if (isReplace) {
-                NSError *error = nil;
-                BOOL removeResult = [fileManager removeItemAtPath:appFilePath error:&error];
-                if (removeResult) {
-                    NSLog(@"Remove file success at %@", appFilePath);
-                }
-                else {
-                    NSLog(@"Could not remove file at %@ - error: %@", filePath, error);
-                }
-            }
-            else {
-                return;
-            }
-        }
-        NSError *error = nil;
-        BOOL copyResult = [fileManager copyItemAtPath:filePath toPath:appFilePath error:&error];
-        if (copyResult) {
-            NSLog(@"Copy file success to %@", appFilePath);
-        }
-        else {
-            NSLog(@"Could not copy file to %@ - error: %@", appFilePath, error);
-        }
-    });
-}
-
--(void)createDirAtPathIfNeeded:(NSString *)path error:(NSError **)error {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    BOOL isDir = NO;
-    if (![fileManager fileExistsAtPath:path isDirectory:&isDir] && !isDir) {
-        [fileManager createDirectoryAtPath:path
-               withIntermediateDirectories:YES
-                                attributes:nil
-                                     error:error];
-    }
 }
 
 -(NSArray *)generateModel:(NSData *)data {
@@ -300,11 +182,16 @@
     NSMutableString *codingKey = (NSMutableString *)components[1];
     NSMutableString *decoder = (NSMutableString *)components[2];
     [codingKey appendFormat:@"\t\tcase %@\n", key];
-    if (isObject) {
-        [decoder appendFormat:@"\t\t%@ = container.decode(.%@, defaultType: %@.self)\n", key, key, keyType];
+    if (self.hasKeyCodingExt) {
+        [decoder appendFormat:@"\t\t%@ = try container.decode(%@.self, forKey: .%@)\n", key, keyType, key];
     }
     else {
-        [decoder appendFormat:@"\t\t%@ = container.decode(.%@, defaultValue: %@)\n", key, key, [self getDefaultValueFor:keyType]];
+        if (isObject) {
+            [decoder appendFormat:@"\t\t%@ = container.decode(.%@, defaultType: %@.self)\n", key, key, keyType];
+        }
+        else {
+            [decoder appendFormat:@"\t\t%@ = container.decode(.%@, defaultValue: %@)\n", key, key, [self getDefaultValueFor:keyType]];
+        }
     }
 }
 
@@ -405,139 +292,6 @@
             break;
     }
     return property;
-}
-
--(NSString *)generateVIPERfiles:(ScriptDescription *)scriptDes {
-    __block NSMutableString *result = [[NSMutableString alloc] initWithString:@"Creating VIPER files tree\n"];
-    dispatch_sync(self.fileManagerQueue, ^{
-//        NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSString *modulePath = [scriptDes.modulePath stringByAppendingPathComponent:scriptDes.moduleName];
-        NSError *error = nil;
-        [self createDirAtPathIfNeeded:modulePath error:&error];
-        if (error) {
-            [result appendString:@"=== Creating files - ERROR ===\n"];
-            [result appendString:error.description];
-            return;
-        }
-        NSArray *treeKeys = SourceCodeFilesTree.allKeys;
-        for (NSString *treeKey in treeKeys) {
-            if ((!scriptDes.chooseInteractor && [treeKey isEqualToString:kInteractor]) ||
-                (!scriptDes.choosePresenter && [treeKey isEqualToString:kPresenter]) ||
-                (!scriptDes.chooseWireframe && [treeKey isEqualToString:kWireframe])) {
-                continue;
-            }
-            
-            // create dir for each component (for Objective-C)
-            NSString *componentPath = modulePath;
-            if (scriptDes.language == CodeLanguageObjectiveC && ![treeKey isEqualToString:kProtocols]) {
-                componentPath = [modulePath stringByAppendingPathComponent:treeKey];
-                [self createDirAtPathIfNeeded:componentPath error:&error];
-                if (error) {
-                    [result appendString:[NSString stringWithFormat:@"Could not create module component path %@ - error: %@\n", componentPath, error]];
-                    NSLog(@"%@", result);
-                    return;
-                }
-            }
-            
-            // create component files
-            NSArray *componentFiles;
-            if (scriptDes.language == CodeLanguageObjectiveC) {
-                componentFiles = SourceCodeFilesTree[treeKey];
-            }
-            else { // Swift
-                componentFiles = SourceCodeSwiftFilesTree[treeKey];
-            }
-            
-            NSString *aFileName;
-            for (NSString *fileName in componentFiles) {
-                if (scriptDes.language == CodeLanguageObjectiveC) {
-                    aFileName = [fileName stringByReplacingOccurrencesOfString:@"_h" withString:@".h"];
-                    aFileName = [aFileName stringByReplacingOccurrencesOfString:@"_m" withString:@".m"];
-                }
-                else { // Swift
-                    aFileName = [fileName stringByReplacingOccurrencesOfString:@"_swift" withString:@".swift"];
-                }
-                aFileName = [NSString stringWithFormat:@"%@%@", scriptDes.moduleName, aFileName];
-                
-                NSString *filePath = [componentPath stringByAppendingPathComponent:aFileName];
-                
-                NSString *docFilePath = [[self applicationDocumentsPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.txt", fileName]];
-                NSError *readingError = nil;
-                NSString *contentFile = [NSString stringWithContentsOfFile:docFilePath encoding:NSUTF8StringEncoding error:&readingError];
-                if (readingError) {
-                    [result appendString:[NSString stringWithFormat:@"Could not read template of file %@ - error: %@\n", aFileName, readingError]];
-                    return;
-                }
-                contentFile = [contentFile stringByReplacingOccurrencesOfString:@"%(author)s" withString:scriptDes.authorName];
-                contentFile = [contentFile stringByReplacingOccurrencesOfString:@"%(module)s" withString:scriptDes.moduleName];
-                contentFile = [contentFile stringByReplacingOccurrencesOfString:@"%(time)s" withString:scriptDes.date];
-                contentFile = [contentFile stringByReplacingOccurrencesOfString:@"%(year)s" withString:scriptDes.year];
-                contentFile = [contentFile stringByReplacingOccurrencesOfString:@"%(project)s" withString:scriptDes.projectName];
-                
-                NSError *writingError = nil;
-                [contentFile writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&writingError];
-                if (writingError) {
-                    [result appendString:[NSString stringWithFormat:@"Could not create file %@ - error: %@\n", aFileName, writingError]];
-                    NSLog(@"%@", writingError);
-                    return;
-                }
-            }
-        }
-        [result appendString:@"=== VIPER files created ==="];
-    });
-    return result;
-}
-
--(NSString *)runScript:(ScriptDescription *)scriptDescription {
-    if (![NSThread isMainThread]) {
-        __block NSString *result = @"";
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            result = [self runScript:scriptDescription];
-        });
-        return result;
-    }
-    
-    NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"autogen" ofType:@"scpt"]];
-    NSAppleScript *script = [[NSAppleScript alloc] initWithContentsOfURL:url error:nil];
-    
-    NSAppleEventDescriptor *h = [NSAppleEventDescriptor descriptorWithString:[scriptDescription.appleEventDescriptor lowercaseString]];
-    NSAppleEventDescriptor *ae = [NSAppleEventDescriptor appleEventWithEventClass:'ascr'
-                                                                          eventID:'psbr'
-                                                                 targetDescriptor:[NSAppleEventDescriptor nullDescriptor]
-                                                                         returnID:kAutoGenerateReturnID
-                                                                    transactionID:kAnyTransactionID];
-    [ae setParamDescriptor:h forKeyword:'snam'];
-    NSAppleEventDescriptor *list = scriptDescription.list;
-    if (list) {
-        [ae setParamDescriptor:list forKeyword:keyDirectObject];
-    }
-    
-    NSDictionary *error = nil;
-    NSAppleEventDescriptor *result = [script executeAppleEvent:ae error:&error];
-    
-    NSLog(@"error = %@", error);
-    NSLog(@"result = %@", result);
-    NSString *resultString = @"";
-    if (result.stringValue) {
-        resultString = result.stringValue;
-    }
-    else if (error) {
-        resultString = [error[@"NSAppleScriptErrorMessage"] copy];
-    }
-    
-    return resultString;
-}
-
--(BOOL)saveFile:(NSString *)fileContent withPath:(NSString *)filePath {
-    __block BOOL result = NO;
-    dispatch_sync(self.fileManagerQueue, ^{
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        if ([fileManager fileExistsAtPath:filePath]) {
-            [fileManager removeItemAtPath:filePath error:nil];
-        }
-        result = [fileManager createFileAtPath:filePath contents:[fileContent dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
-    });
-    return result;
 }
 
 - (void)dealloc

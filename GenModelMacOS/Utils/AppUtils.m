@@ -7,7 +7,6 @@
 //
 
 #import "AppUtils.h"
-#import "ScriptDescription.h"
 
 @implementation AppUtils
 

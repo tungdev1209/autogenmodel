@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14313.18"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -697,8 +697,10 @@
                                 <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="iuE-Uh-mv3"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="AOM-mo-3bn"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="h39-bu-2MA"/>
-                                <toolbarItem implicitItemIdentifier="FE6AFD9A-74C3-4587-B464-5E8EFD78B3C7" label="Generate" paletteLabel="Generate" sizingBehavior="auto" id="rjY-XW-kar">
+                                <toolbarItem implicitItemIdentifier="FE6AFD9A-74C3-4587-B464-5E8EFD78B3C7" label="Generate" paletteLabel="Generate" id="rjY-XW-kar">
                                     <nil key="toolTip"/>
+                                    <size key="minSize" width="60" height="32"/>
+                                    <size key="maxSize" width="82" height="32"/>
                                     <button key="view" verticalHuggingPriority="750" id="jvB-dN-QN9">
                                         <rect key="frame" x="0.0" y="14" width="82" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -725,11 +727,41 @@
                                         </connections>
                                     </button>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="13CC6B5E-24CA-4688-A2D2-64B1C0FB75C0" explicitItemIdentifier="KeyCodingExtension" label="KeyCodingExtension" paletteLabel="KeyCodingExtension" tag="-1" sizingBehavior="auto" id="M3E-1R-2HQ">
+                                    <nil key="toolTip"/>
+                                    <box key="view" misplaced="YES" boxType="custom" borderType="none" titlePosition="noTitle" id="mkZ-k3-nhD">
+                                        <rect key="frame" x="0.0" y="14" width="171" height="110"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <view key="contentView" id="lEq-xa-8DZ">
+                                            <rect key="frame" x="0.0" y="0.0" width="171" height="110"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <subviews>
+                                                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rek-fQ-ALO">
+                                                    <rect key="frame" x="-2" y="-2" width="175" height="18"/>
+                                                    <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="overlaps" state="on" inset="2" id="7iD-kC-kbF">
+                                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                        <font key="font" metaFont="system"/>
+                                                    </buttonCell>
+                                                    <connections>
+                                                        <action selector="useKeyCodingExtension:" target="IQv-IB-iLA" id="4Cq-rf-wKY"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="rek-fQ-ALO" firstAttribute="leading" secondItem="lEq-xa-8DZ" secondAttribute="leading" id="AV1-1K-Ypf"/>
+                                                <constraint firstAttribute="trailing" secondItem="rek-fQ-ALO" secondAttribute="trailing" id="IT8-VQ-tV2"/>
+                                                <constraint firstAttribute="bottom" secondItem="rek-fQ-ALO" secondAttribute="bottom" id="auK-jW-Mj0"/>
+                                                <constraint firstItem="rek-fQ-ALO" firstAttribute="top" secondItem="lEq-xa-8DZ" secondAttribute="top" id="yN5-Xd-KnX"/>
+                                            </constraints>
+                                        </view>
+                                    </box>
+                                </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
                                 <toolbarItem reference="BZn-Oq-WmZ"/>
                                 <toolbarItem reference="JxW-yJ-HAW"/>
                                 <toolbarItem reference="F5X-Fw-tcE"/>
+                                <toolbarItem reference="M3E-1R-2HQ"/>
                                 <toolbarItem reference="h39-bu-2MA"/>
                                 <toolbarItem reference="rjY-XW-kar"/>
                             </defaultToolbarItems>
@@ -773,7 +805,7 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="250" id="vrT-tu-vGz"/>
                                 </constraints>
-                                <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="YfO-nV-bGw">
+                                <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="YfO-nV-bGw">
                                     <rect key="frame" x="234" y="0.0" width="16" height="270"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -794,7 +826,7 @@
                                         </textView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="uGE-9l-aaN">
+                                <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="uGE-9l-aaN">
                                     <rect key="frame" x="234" y="0.0" width="16" height="270"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>

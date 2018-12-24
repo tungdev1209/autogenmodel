@@ -21,7 +21,6 @@
 		1ABCE91B2154EC0E003980DB /* GenModelMacOSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE91A2154EC0E003980DB /* GenModelMacOSUITests.m */; };
 		1ABCE92B2154EFB3003980DB /* AppInteractorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE9292154EFB3003980DB /* AppInteractorManager.m */; };
 		1ABCE9302154F07F003980DB /* ObservableObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE92D2154F07F003980DB /* ObservableObject.m */; };
-		1ABCE9352154F0D2003980DB /* ScriptDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE9342154F0D2003980DB /* ScriptDescription.m */; };
 		1ABCE9392154F0F7003980DB /* AppUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE9372154F0F7003980DB /* AppUtils.m */; };
 		1ABCE93D2154F195003980DB /* AppMainMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE93B2154F195003980DB /* AppMainMenu.m */; };
 /* End PBXBuildFile section */
@@ -75,8 +74,6 @@
 		1ABCE92D2154F07F003980DB /* ObservableObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObservableObject.m; sourceTree = "<group>"; };
 		1ABCE92E2154F07F003980DB /* ObservableObject+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ObservableObject+Private.h"; sourceTree = "<group>"; };
 		1ABCE92F2154F07F003980DB /* ObservableObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObservableObject.h; sourceTree = "<group>"; };
-		1ABCE9332154F0D2003980DB /* ScriptDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptDescription.h; sourceTree = "<group>"; };
-		1ABCE9342154F0D2003980DB /* ScriptDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScriptDescription.m; sourceTree = "<group>"; };
 		1ABCE9372154F0F7003980DB /* AppUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppUtils.m; sourceTree = "<group>"; };
 		1ABCE9382154F0F7003980DB /* AppUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppUtils.h; sourceTree = "<group>"; };
 		1ABCE93A2154F14C003980DB /* GenModelMacOS_PrefixHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenModelMacOS_PrefixHeader.h; sourceTree = "<group>"; };
@@ -250,8 +247,6 @@
 		1ABCE9322154F0D2003980DB /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				1ABCE9332154F0D2003980DB /* ScriptDescription.h */,
-				1ABCE9342154F0D2003980DB /* ScriptDescription.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -259,8 +254,8 @@
 		1ABCE9362154F0F7003980DB /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				1ABCE9372154F0F7003980DB /* AppUtils.m */,
 				1ABCE9382154F0F7003980DB /* AppUtils.h */,
+				1ABCE9372154F0F7003980DB /* AppUtils.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -400,7 +395,6 @@
 				1ABCE9052154EC0D003980DB /* main.m in Sources */,
 				18FCCB4F2156034000BCE256 /* MainViewModel.m in Sources */,
 				1ABCE93D2154F195003980DB /* AppMainMenu.m in Sources */,
-				1ABCE9352154F0D2003980DB /* ScriptDescription.m in Sources */,
 				18FCCB4C2156029B00BCE256 /* MainView.m in Sources */,
 				18FCCB57215643C900BCE256 /* MainWindow.m in Sources */,
 				1ABCE9392154F0F7003980DB /* AppUtils.m in Sources */,
