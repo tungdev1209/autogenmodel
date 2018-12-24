@@ -17,4 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface NSFont(App)
+
++(NSFont *)defaultValue;
++(NSFont *)defaultItalicValue;
+
+@end
+
 NS_ASSUME_NONNULL_END

@@ -9,6 +9,7 @@
 #import "MainView.h"
 #import "MainViewModel.h"
 #import "DivisionView.h"
+#import "CommonExtension.h"
 
 @interface MainView ()
 
@@ -30,6 +31,9 @@
 
 -(void)awakeFromNib {
     [super awakeFromNib];
+    
+    [self.jsonTextView setFont:NSFont.defaultValue];
+    [self.codeTextView setFont:NSFont.defaultValue];
     
     self.viewModel = [[MainViewModel alloc] init];
     

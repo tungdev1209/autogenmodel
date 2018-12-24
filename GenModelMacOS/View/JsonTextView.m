@@ -7,6 +7,7 @@
 //
 
 #import "JsonTextView.h"
+#import "CommonExtension.h"
 
 @interface JsonTextView ()
 
@@ -20,7 +21,9 @@
     [super awakeFromNib];
     
     NSColor *txtColor = [NSColor grayColor];
-    NSDictionary *txtDict = [NSDictionary dictionaryWithObjectsAndKeys:txtColor, NSForegroundColorAttributeName, nil];
+    NSFont *font = NSFont.defaultItalicValue;
+    NSDictionary *txtDict = @{NSForegroundColorAttributeName: txtColor,
+                              NSFontAttributeName: font};
     self.placeHolderString = [[NSAttributedString alloc] initWithString:@"Paste your json here..." attributes:txtDict];
 }
 

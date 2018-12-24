@@ -27,3 +27,15 @@
 }
 
 @end
+
+@implementation NSFont(App)
+
++(NSFont *)defaultValue {
+    return [NSFont systemFontOfSize:15.0];
+}
+
++(NSFont *)defaultItalicValue {
+    return [[NSFontManager sharedFontManager] fontWithFamily:@"Helvetica" traits:NSItalicFontMask weight:0 size:15.0];
+}
+
+@end
