@@ -11,6 +11,8 @@
 
 @interface MainWindow ()
 
+@property (nonatomic, weak) IBOutlet NSButton *keyCodingCheckboxButton;
+
 @end
 
 @implementation MainWindow
@@ -35,6 +37,16 @@
     [sender setTitle:[self titleForLanguage:[AppInteractorManager shared].language]];
     
     [self checkLanguageState];
+    [self setKeyCodingIfNeeded];
+}
+
+-(void)setKeyCodingIfNeeded {
+    if ([AppInteractorManager shared].language == CodeLanguageObjectiveC) {
+        [[AppInteractorManager shared] setHasKeyCodingExt:NO];
+    }
+    else {
+        [[AppInteractorManager shared] setHasKeyCodingExt:self.keyCodingCheckboxButton.state];
+    }
 }
 
 -(void)checkLanguageState {

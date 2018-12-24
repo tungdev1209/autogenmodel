@@ -7,6 +7,7 @@
 //
 
 #import "AppInteractorManager.h"
+#import "CommonExtension.h"
 
 #define AppPath @"GenerateModel"
 
@@ -60,10 +61,53 @@
     
     [self appendEndSymbol];
     
-    NSArray *result = [self.interfaces copy];
+    NSMutableArray *result = [self.interfaces mutableCopy];
+    
     [self.interfaces removeAllObjects];
     [self.codingKeys removeAllObjects];
     [self.decoders removeAllObjects];
+    
+    if (self.hasKeyCodingExt) {
+        NSMutableString *kdExtenstion = [[NSMutableString alloc] init];
+        [kdExtenstion appendWithTabLevel:0 string:@"===================== EXTENSION ====================="];
+        [kdExtenstion appendWithTabLevel:0 string:@"extension KeyedDecodingContainer {"];
+        [kdExtenstion appendWithTabLevel:1 string:@"func decode<T>(_ key: KeyedDecodingContainer<K>.Key, defaultValue: T) -> T {"];
+        [kdExtenstion appendWithTabLevel:2 string:@"do {"];
+        [kdExtenstion appendWithTabLevel:3 string:@"switch defaultValue.self {"];
+        [kdExtenstion appendWithTabLevel:3 string:@"case is Bool:"];
+        [kdExtenstion appendWithTabLevel:4 string:@"return try decode(Bool.self, forKey: key) as! T"];
+        [kdExtenstion appendWithTabLevel:4 string:@""];
+        [kdExtenstion appendWithTabLevel:3 string:@"case is Int:"];
+        [kdExtenstion appendWithTabLevel:4 string:@"return try decode(Int.self, forKey: key) as! T"];
+        [kdExtenstion appendWithTabLevel:4 string:@""];
+        [kdExtenstion appendWithTabLevel:3 string:@"case is String:"];
+        [kdExtenstion appendWithTabLevel:4 string:@"return try decode(String.self, forKey: key) as! T"];
+        [kdExtenstion appendWithTabLevel:4 string:@""];
+        [kdExtenstion appendWithTabLevel:3 string:@"case is Double:"];
+        [kdExtenstion appendWithTabLevel:4 string:@"return try decode(Double.self, forKey: key) as! T"];
+        [kdExtenstion appendWithTabLevel:4 string:@""];
+        [kdExtenstion appendWithTabLevel:3 string:@"default:"];
+        [kdExtenstion appendWithTabLevel:4 string:@"return try decode(Float.self, forKey: key) as! T"];
+        [kdExtenstion appendWithTabLevel:3 string:@"}"];
+        [kdExtenstion appendWithTabLevel:2 string:@"} catch {"];
+        [kdExtenstion appendWithTabLevel:3 string:@"return defaultValue"];
+        [kdExtenstion appendWithTabLevel:2 string:@"}"];
+        [kdExtenstion appendWithTabLevel:1 string:@"}"];
+        
+        [kdExtenstion appendWithTabLevel:1 string:@""];
+        
+        [kdExtenstion appendWithTabLevel:1 string:@"func decode<T: Codable>(_ key: KeyedDecodingContainer<K>.Key, defaultType: T.Type) -> T? {"];
+        [kdExtenstion appendWithTabLevel:2 string:@"do {"];
+        [kdExtenstion appendWithTabLevel:3 string:@"return try decode(defaultType.self, forKey: key)"];
+        [kdExtenstion appendWithTabLevel:2 string:@"} catch {"];
+        [kdExtenstion appendWithTabLevel:3 string:@"return nil"];
+        [kdExtenstion appendWithTabLevel:2 string:@"}"];
+        [kdExtenstion appendWithTabLevel:1 string:@"}"];
+        [kdExtenstion appendWithTabLevel:0 string:@"}"];
+        
+        [result insertObject:kdExtenstion atIndex:0];
+    }
+    
     return result;
 }
 
@@ -79,11 +123,11 @@
             case CodeLanguageSwift: {
                 NSMutableString *codingKey = self.codingKeys[i];
                 NSMutableString *decoder = self.decoders[i];
-                [codingKey appendString:@"\t}\n"];
-                [decoder appendString:@"\t}\n"];
+                [codingKey appendWithTabLevel:1 string:@"}"];
+                [decoder appendWithTabLevel:1 string:@"}"];
                 [interface appendString:codingKey];
                 [interface appendString:decoder];
-                [interface appendString:@"}\n"];
+                [interface appendWithTabLevel:0 string:@"}"];
             }
                 break;
                 
@@ -125,8 +169,10 @@
             NSMutableString *codingKey = [[NSMutableString alloc] initWithFormat:@"\n\tprivate enum CodingKeys: String, CodingKey {\n"];
             [self.codingKeys addObject:codingKey];
             
-            NSMutableString *decoder = [[NSMutableString alloc] initWithFormat:@"\n\tinit(from decoder: Decoder) throws {\n"];
-            [decoder appendString:@"\t\tlet container = try decoder.container(keyedBy: CodingKeys.self)\n"];
+            NSMutableString *decoder = [[NSMutableString alloc] init];
+            [decoder appendWithTabLevel:0 string:@""];
+            [decoder appendWithTabLevel:1 string:@"init(from decoder: Decoder) throws {"];
+            [decoder appendWithTabLevel:2 string:@"let container = try decoder.container(keyedBy: CodingKeys.self)"];
             [self.decoders addObject:decoder];
             
             [components addObject:interface];
@@ -178,20 +224,20 @@
 }
 
 -(void)generateCodingKeyAndDecoder:(NSArray *)components keyName:(NSString *)key keyType:(NSString *)keyType isObject:(BOOL)isObject {
-    if (self.language == CodeLanguageObjectiveC) return;
+    if (self.language == CodeLanguageObjectiveC || components.count <= 2) return;
     NSMutableString *codingKey = (NSMutableString *)components[1];
     NSMutableString *decoder = (NSMutableString *)components[2];
     [codingKey appendFormat:@"\t\tcase %@\n", key];
     if (self.hasKeyCodingExt) {
-        [decoder appendFormat:@"\t\t%@ = try container.decode(%@.self, forKey: .%@)\n", key, keyType, key];
-    }
-    else {
         if (isObject) {
-            [decoder appendFormat:@"\t\t%@ = container.decode(.%@, defaultType: %@.self)\n", key, key, keyType];
+            [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultType: %@.self)", key, key, keyType];
         }
         else {
-            [decoder appendFormat:@"\t\t%@ = container.decode(.%@, defaultValue: %@)\n", key, key, [self getDefaultValueFor:keyType]];
+            [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultValue: %@)", key, key, [self getDefaultValueFor:keyType]];
         }
+    }
+    else {
+        [decoder appendWithTabLevel:2 format:@"%@ = try container.decode(%@.self, forKey: .%@)", key, keyType, key];
     }
 }
 

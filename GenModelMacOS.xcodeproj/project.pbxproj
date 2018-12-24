@@ -12,6 +12,8 @@
 		18FCCB532156293300BCE256 /* MainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FCCB522156293300BCE256 /* MainWindowController.m */; };
 		18FCCB57215643C900BCE256 /* MainWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FCCB56215643C900BCE256 /* MainWindow.m */; };
 		18FCCB5D2156492A00BCE256 /* DivisionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FCCB5B2156492A00BCE256 /* DivisionView.m */; };
+		1A5CF1A821D08AB90036843B /* JsonTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5CF1A721D08AB90036843B /* JsonTextView.m */; };
+		1A5CF1AB21D097030036843B /* CommonExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5CF1AA21D097030036843B /* CommonExtension.m */; };
 		1ABCE8FA2154EC0C003980DB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE8F92154EC0C003980DB /* AppDelegate.m */; };
 		1ABCE8FD2154EC0C003980DB /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ABCE8FC2154EC0C003980DB /* MainViewController.m */; };
 		1ABCE8FF2154EC0D003980DB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1ABCE8FE2154EC0D003980DB /* Assets.xcassets */; };
@@ -53,6 +55,10 @@
 		18FCCB56215643C900BCE256 /* MainWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainWindow.m; sourceTree = "<group>"; };
 		18FCCB5B2156492A00BCE256 /* DivisionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DivisionView.m; sourceTree = "<group>"; };
 		18FCCB5C2156492A00BCE256 /* DivisionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DivisionView.h; sourceTree = "<group>"; };
+		1A5CF1A621D08AB90036843B /* JsonTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JsonTextView.h; sourceTree = "<group>"; };
+		1A5CF1A721D08AB90036843B /* JsonTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JsonTextView.m; sourceTree = "<group>"; };
+		1A5CF1A921D097030036843B /* CommonExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommonExtension.h; sourceTree = "<group>"; };
+		1A5CF1AA21D097030036843B /* CommonExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CommonExtension.m; sourceTree = "<group>"; };
 		1ABCE8F52154EC0C003980DB /* GenModelMacOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GenModelMacOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ABCE8F82154EC0C003980DB /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1ABCE8F92154EC0C003980DB /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -131,6 +137,8 @@
 				18FCCB4B2156029B00BCE256 /* MainView.m */,
 				18FCCB5C2156492A00BCE256 /* DivisionView.h */,
 				18FCCB5B2156492A00BCE256 /* DivisionView.m */,
+				1A5CF1A621D08AB90036843B /* JsonTextView.h */,
+				1A5CF1A721D08AB90036843B /* JsonTextView.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -152,6 +160,15 @@
 				18FCCB522156293300BCE256 /* MainWindowController.m */,
 			);
 			path = Main;
+			sourceTree = "<group>";
+		};
+		1A5CF1AC21D0970B0036843B /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				1A5CF1A921D097030036843B /* CommonExtension.h */,
+				1A5CF1AA21D097030036843B /* CommonExtension.m */,
+			);
+			path = Extension;
 			sourceTree = "<group>";
 		};
 		1ABCE8EC2154EC0C003980DB = {
@@ -177,12 +194,12 @@
 		1ABCE8F72154EC0C003980DB /* GenModelMacOS */ = {
 			isa = PBXGroup;
 			children = (
+				1A5CF1AC21D0970B0036843B /* Extension */,
 				18FCCB502156291A00BCE256 /* Window */,
 				18FCCB492156028F00BCE256 /* View */,
 				18FCCB482156024D00BCE256 /* ViewModel */,
 				18FCCB472156024000BCE256 /* ViewController */,
 				1ABCE9362154F0F7003980DB /* Utils */,
-				1ABCE9322154F0D2003980DB /* Model */,
 				1ABCE9312154F082003980DB /* ThirdParty */,
 				1ABCE9282154EFA1003980DB /* AppComponent */,
 				1ABCE8FE2154EC0D003980DB /* Assets.xcassets */,
@@ -242,13 +259,6 @@
 				1ABCE92C2154F07F003980DB /* ObservableObject */,
 			);
 			path = ThirdParty;
-			sourceTree = "<group>";
-		};
-		1ABCE9322154F0D2003980DB /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		1ABCE9362154F0F7003980DB /* Utils */ = {
@@ -397,9 +407,11 @@
 				1ABCE93D2154F195003980DB /* AppMainMenu.m in Sources */,
 				18FCCB4C2156029B00BCE256 /* MainView.m in Sources */,
 				18FCCB57215643C900BCE256 /* MainWindow.m in Sources */,
+				1A5CF1A821D08AB90036843B /* JsonTextView.m in Sources */,
 				1ABCE9392154F0F7003980DB /* AppUtils.m in Sources */,
 				18FCCB5D2156492A00BCE256 /* DivisionView.m in Sources */,
 				1ABCE9302154F07F003980DB /* ObservableObject.m in Sources */,
+				1A5CF1AB21D097030036843B /* CommonExtension.m in Sources */,
 				1ABCE8FA2154EC0C003980DB /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
