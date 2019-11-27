@@ -285,7 +285,7 @@
             break;
             
         case CodeLanguageSwift: {
-            property = [NSString stringWithFormat:@"\tlet %@: %@\n", keyName, object];
+            property = [NSString stringWithFormat:@"\tlet %@: %@?\n", keyName, object];
         }
             break;
             
