@@ -214,7 +214,7 @@
     }
     else if ([jsonContent isKindOfClass:[NSArray class]]) {
         [anInterface appendString:[self gennerateArrayProperty:aKey]];
-        [self generateCodingKeyAndDecoder:aComponents keyName:aKey keyType:@"[Any]"];
+        [self generateCodingKeyAndDecoder:aComponents keyName:aKey keyType:@"[Any]" isObject:YES];
     }
     else {
         NSString *contentType = NSStringFromClass([jsonContent class]);
@@ -236,7 +236,11 @@
     [codingKey appendFormat:@"\t\tcase %@\n", key];
     if (self.hasKeyCodingExt) {
         if (isObject) {
-            [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultType: %@.self)", key, key, keyType];
+            if ([keyType containsString:@"["]) { // is array
+                [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultType: %@.self) ?? []", key, key, keyType];
+            } else {
+                [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultType: %@.self)", key, key, keyType];
+            }
         }
         else {
             [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultValue: %@)", key, key, [self getDefaultValueFor:keyType]];
