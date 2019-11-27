@@ -275,8 +275,9 @@
     return type;
 }
     
--(NSString *)generateObjectProperty:(NSString *)object keyName:(NSString *)keyName {
+-(NSString *)generateObjectProperty:(NSString *)object keyName:(NSString *)originKeyName {
     NSString *property = @"";
+    NSString *keyName = [originKeyName convertToSnakeFormat];
     switch (self.language) {
         case CodeLanguageObjectiveC: {
             property = [NSString stringWithFormat:@"@property (nonatomic, strong) %@ *%@;\n", object, keyName];
@@ -294,8 +295,9 @@
     return property;
 }
 
--(NSString *)gennerateArrayProperty:(NSString *)keyName {
+-(NSString *)gennerateArrayProperty:(NSString *)originKeyName {
     NSString *property = @"";
+    NSString *keyName = [originKeyName convertToSnakeFormat];
     switch (self.language) {
         case CodeLanguageObjectiveC: {
             property = [NSString stringWithFormat:@"@property (nonatomic, strong) NSArray *%@;\n", keyName];
