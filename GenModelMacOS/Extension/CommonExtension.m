@@ -39,3 +39,35 @@
 }
 
 @end
+
+@implementation NSString(App)
+
+-(NSString *)convertToSnakeFormat {
+    NSArray *components = [self componentsSeparatedByString:@"_"];
+    if (components.count == 0) {return self;}
+    NSMutableString *result;
+    for (NSString *str in components) {
+        if ([str isEqualToString:@""]) {continue;}
+        NSString *firstChar = [str substringToIndex:1];
+        
+        if (!result) { // this str is the first string in list
+            if ([[firstChar uppercaseString] isEqualToString:firstChar]) {
+                firstChar = firstChar.lowercaseString;
+            }
+        } else {
+            if ([[firstChar lowercaseString] isEqualToString:firstChar]) {
+                firstChar = firstChar.uppercaseString;
+            }
+        }
+        
+        NSString *finalStr = [NSString stringWithFormat:@"%@%@", firstChar, [str substringFromIndex:1]];
+        if (!result) {
+            result = [[NSMutableString alloc] initWithString:finalStr];
+        } else {
+            [result appendString:finalStr];
+        }
+    }
+    return result;
+}
+
+@end

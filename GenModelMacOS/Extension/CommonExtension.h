@@ -24,4 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface NSString(App)
+
+-(NSString *)convertToSnakeFormat;
+
+@end
+
 NS_ASSUME_NONNULL_END

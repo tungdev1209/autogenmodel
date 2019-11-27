@@ -229,14 +229,19 @@
     [self generateCodingKeyAndDecoder:components keyName:key keyType:keyType isObject:NO];
 }
 
--(void)generateCodingKeyAndDecoder:(NSArray *)components keyName:(NSString *)key keyType:(NSString *)keyType isObject:(BOOL)isObject {
+-(void)generateCodingKeyAndDecoder:(NSArray *)components keyName:(NSString *)originKey keyType:(NSString *)keyType isObject:(BOOL)isObject {
     if (self.language == CodeLanguageObjectiveC || components.count <= 2) return;
     NSMutableString *codingKey = (NSMutableString *)components[1];
     NSMutableString *decoder = (NSMutableString *)components[2];
-    [codingKey appendFormat:@"\t\tcase %@\n", key];
+    NSString *key = [originKey convertToSnakeFormat];
+    if ([key isEqualToString:originKey]) {
+        [codingKey appendWithTabLevel:2 format:@"case %@", key];
+    } else {
+        [codingKey appendWithTabLevel:2 format:@"case %@ = \"%@\"", key, originKey];
+    }
     if (self.hasKeyCodingExt) {
         if (isObject) {
-            if ([keyType containsString:@"["]) { // is array
+            if ([keyType containsString:@"]"]) { // is array
                 [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultType: %@.self) ?? []", key, key, keyType];
             } else {
                 [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultType: %@.self)", key, key, keyType];
@@ -261,7 +266,10 @@
     else if ([type isEqualToString:@"Bool"]) {
         return @"false";
     }
-    else if ([type isEqualToString:@"Double"] || [type isEqualToString:@"Float"]) {
+    else if ([type isEqualToString:@"Double"] ||
+             [type isEqualToString:@"Float"] ||
+             [type isEqualToString:@"CGFloat"])
+    {
         return @"0.0";
     }
     return type;
@@ -305,8 +313,9 @@
     return property;
 }
 
--(NSString *)generateCommonPropertyForType:(NSString *)type keyName:(NSString *)keyName keyType:(NSString **)keyType {
+-(NSString *)generateCommonPropertyForType:(NSString *)type keyName:(NSString *)originKeyName keyType:(NSString **)keyType {
     NSString *property = @"";
+    NSString *keyName = [originKeyName convertToSnakeFormat];
     switch (self.language) {
         case CodeLanguageSwift: {
             if ([type containsString:@"String"]) {
