@@ -26,8 +26,8 @@
 -(NSString *)generateCodeFor:(NSString *)jsonString {
     NSError *error = nil;
     if (!error) {
-        NSArray *codes = [[AppInteractorManager shared] generateModel:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-        return [codes componentsJoinedByString:@"\n=====================================================\n"];
+        NSArray *codes = [[AppInteractorManager shared] generateModel:[[jsonString stringByReplacingOccurrencesOfString:@"\\\"" withString:@"\""] dataUsingEncoding:NSUTF8StringEncoding]];
+        return [codes componentsJoinedByString:@"\n//=====================================================\n"];
     }
     return @"";
 }

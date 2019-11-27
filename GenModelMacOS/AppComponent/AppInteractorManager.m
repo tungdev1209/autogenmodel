@@ -55,9 +55,9 @@
         return @[];
     }
     
-    NSLog(@"===================== BEGIN =====================");
+    NSLog(@"//===================== BEGIN =====================");
     [self analyzeContent:jsonContent key:@"datasource" currentComponents:@[[@"" mutableCopy]]];
-    NSLog(@"===================== END =====================");
+    NSLog(@"//===================== END =====================");
     
     [self appendEndSymbol];
     
@@ -69,7 +69,7 @@
     
     if (self.hasKeyCodingExt) {
         NSMutableString *kdExtenstion = [[NSMutableString alloc] init];
-        [kdExtenstion appendWithTabLevel:0 string:@"===================== EXTENSION ====================="];
+        [kdExtenstion appendWithTabLevel:0 string:@"//===================== EXTENSION ====================="];
         [kdExtenstion appendWithTabLevel:0 string:@"extension KeyedDecodingContainer {"];
         [kdExtenstion appendWithTabLevel:1 string:@"func decode<T>(_ key: KeyedDecodingContainer<K>.Key, defaultValue: T) -> T {"];
         [kdExtenstion appendWithTabLevel:2 string:@"do {"];
@@ -86,8 +86,14 @@
         [kdExtenstion appendWithTabLevel:3 string:@"case is Double:"];
         [kdExtenstion appendWithTabLevel:4 string:@"return try decode(Double.self, forKey: key) as! T"];
         [kdExtenstion appendWithTabLevel:4 string:@""];
-        [kdExtenstion appendWithTabLevel:3 string:@"default:"];
+        [kdExtenstion appendWithTabLevel:3 string:@"case is Float:"];
         [kdExtenstion appendWithTabLevel:4 string:@"return try decode(Float.self, forKey: key) as! T"];
+        [kdExtenstion appendWithTabLevel:4 string:@""];
+        [kdExtenstion appendWithTabLevel:3 string:@"case is CGFloat:"];
+        [kdExtenstion appendWithTabLevel:4 string:@"return try decode(CGFloat.self, forKey: key) as! T"];
+        [kdExtenstion appendWithTabLevel:4 string:@""];
+        [kdExtenstion appendWithTabLevel:3 string:@"default:"];
+        [kdExtenstion appendWithTabLevel:4 string:@"return defaultValue"];
         [kdExtenstion appendWithTabLevel:3 string:@"}"];
         [kdExtenstion appendWithTabLevel:2 string:@"} catch {"];
         [kdExtenstion appendWithTabLevel:3 string:@"return defaultValue"];
