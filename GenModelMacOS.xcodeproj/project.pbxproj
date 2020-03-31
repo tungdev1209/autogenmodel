@@ -575,17 +575,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = GenModelMacOS/GenModelMacOS.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = TX5SE2R2WN;
+				DEVELOPMENT_TEAM = L5H4458NSR;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/GenModelMacOS/GenModelMacOS_PrefixHeader.h";
 				INFOPLIST_FILE = GenModelMacOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.fsoft.cme.GenModelMacOS;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tung.GenModelMacOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
@@ -596,14 +598,14 @@
 				CODE_SIGN_ENTITLEMENTS = GenModelMacOS/GenModelMacOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = TX5SE2R2WN;
+				DEVELOPMENT_TEAM = L5H4458NSR;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/GenModelMacOS/GenModelMacOS_PrefixHeader.h";
 				INFOPLIST_FILE = GenModelMacOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.fsoft.cme.GenModelMacOS;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tung.GenModelMacOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

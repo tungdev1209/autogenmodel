@@ -122,23 +122,30 @@
     for (int i = 0; i < interfacesCount; i++) {
         NSMutableString *interface = self.interfaces[i];
         switch (self.language) {
-            case CodeLanguageObjectiveC:
-                [interface appendString:@"\n@end\n"];
-                break;
-                
-            case CodeLanguageSwift: {
-                NSMutableString *codingKey = self.codingKeys[i];
-                NSMutableString *decoder = self.decoders[i];
-                [codingKey appendWithTabLevel:1 string:@"}"];
-                [decoder appendWithTabLevel:1 string:@"}"];
-                [interface appendString:codingKey];
-                [interface appendString:decoder];
-                [interface appendWithTabLevel:0 string:@"}"];
-            }
-                break;
-                
-            default:
-                break;
+        case CodeLanguageObjectiveC: {
+            [interface appendString:@"\n-(instancetype)initWithDatasource:(NSDictionary *)datasource;\n"];
+            [interface appendString:@"\n@end\n"];
+            NSMutableString *decoder = self.decoders[i];
+            [decoder appendWithTabLevel:1 string:@"return self;"];
+            [decoder appendWithTabLevel:0 string:@"}"];
+            [decoder appendWithTabLevel:0 string:@"\n@end\n"];
+            [interface appendString:decoder];
+            break;
+        }
+            
+        case CodeLanguageSwift: {
+            NSMutableString *codingKey = self.codingKeys[i];
+            NSMutableString *decoder = self.decoders[i];
+            [codingKey appendWithTabLevel:1 string:@"}"];
+            [decoder appendWithTabLevel:1 string:@"}"];
+            [interface appendString:codingKey];
+            [interface appendString:decoder];
+            [interface appendWithTabLevel:0 string:@"}"];
+        }
+            break;
+            
+        default:
+            break;
         }
     }
 }
@@ -159,36 +166,45 @@
 }
 
 -(NSArray *)createInterfaceWithKey:(NSString *)key name:(NSString **)interfaceName {
-    *interfaceName = [self createInterfaceNameFrom:key];
+    *interfaceName = key.asUpperCamelCase;
     NSMutableString *interface;
     NSMutableArray *components = [[NSMutableArray alloc] init];
     switch (self.language) {
-        case CodeLanguageObjectiveC: {
-            interface = [[NSMutableString alloc] initWithFormat:@"//\n#import <Foundation/Foundation.h>\n\n@interface %@: NSObject\n\n", *interfaceName];
-            [components addObject:interface];
-        }
-            break;
-            
-        case CodeLanguageSwift: {
-            interface = [[NSMutableString alloc] initWithFormat:@"//\nimport UIKit\n\nstruct %@: Codable {\n", *interfaceName];
-            
-            NSMutableString *codingKey = [[NSMutableString alloc] initWithFormat:@"\n\tprivate enum CodingKeys: String, CodingKey {\n"];
-            [self.codingKeys addObject:codingKey];
-            
-            NSMutableString *decoder = [[NSMutableString alloc] init];
-            [decoder appendWithTabLevel:0 string:@""];
-            [decoder appendWithTabLevel:1 string:@"init(from decoder: Decoder) throws {"];
-            [decoder appendWithTabLevel:2 string:@"let container = try decoder.container(keyedBy: CodingKeys.self)"];
-            [self.decoders addObject:decoder];
-            
-            [components addObject:interface];
-            [components addObject:codingKey];
-            [components addObject:decoder];
-        }
-            break;
-            
-        default:
-            break;
+    case CodeLanguageObjectiveC: {
+        interface = [[NSMutableString alloc] initWithFormat:@"//\n#import <Foundation/Foundation.h>\n\n@interface %@: NSObject\n\n", *interfaceName];
+        [components addObject:interface];
+        
+        NSMutableString *decoder = [[NSMutableString alloc] init];
+        [decoder appendWithTabLevel:0 format:@"\n@implementation %@", *interfaceName];
+        [decoder appendWithTabLevel:0 string:@""];
+        [decoder appendWithTabLevel:0 string:@"-(instancetype)initWithDatasource:(NSDictionary *)datasource {"];
+        [decoder appendWithTabLevel:1 string:@"self = [super init];"];
+        [self.decoders addObject:decoder];
+        
+        [components addObject:decoder];
+    }
+        break;
+        
+    case CodeLanguageSwift: {
+        interface = [[NSMutableString alloc] initWithFormat:@"//\nimport UIKit\n\nstruct %@: Codable {\n", *interfaceName];
+        
+        NSMutableString *codingKey = [[NSMutableString alloc] initWithFormat:@"\n\tprivate enum CodingKeys: String, CodingKey {\n"];
+        [self.codingKeys addObject:codingKey];
+        
+        NSMutableString *decoder = [[NSMutableString alloc] init];
+        [decoder appendWithTabLevel:0 string:@""];
+        [decoder appendWithTabLevel:1 string:@"init(from decoder: Decoder) throws {"];
+        [decoder appendWithTabLevel:2 string:@"let container = try decoder.container(keyedBy: CodingKeys.self)"];
+        [self.decoders addObject:decoder];
+        
+        [components addObject:interface];
+        [components addObject:codingKey];
+        [components addObject:decoder];
+    }
+        break;
+        
+    default:
+        break;
     }
     [self.interfaces addObject:interface];
     return components;
@@ -230,38 +246,62 @@
 }
 
 -(void)generateCodingKeyAndDecoder:(NSArray *)components keyName:(NSString *)originKey keyType:(NSString *)keyType isObject:(BOOL)isObject {
-    if (self.language == CodeLanguageObjectiveC || components.count <= 2) return;
-    NSMutableString *codingKey = (NSMutableString *)components[1];
-    NSMutableString *decoder = (NSMutableString *)components[2];
-    NSString *key = [originKey convertToSnakeFormat];
-    if ([key isEqualToString:originKey]) {
-        [codingKey appendWithTabLevel:2 format:@"case %@", key];
-    } else {
-        [codingKey appendWithTabLevel:2 format:@"case %@ = \"%@\"", key, originKey];
-    }
-    if (self.hasKeyCodingExt) {
-        if (isObject) {
-            if ([keyType containsString:@"]"]) { // is array
-                [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultType: %@.self) ?? []", key, key, keyType];
-            } else {
-                [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultType: %@.self)", key, key, keyType];
+    switch (self.language) {
+    case CodeLanguageSwift: {
+        if (components.count <= 2) return;
+        NSMutableString *codingKey = (NSMutableString *)components[1];
+        NSMutableString *decoder = (NSMutableString *)components[2];
+        NSString *key = originKey.asCamelCase;
+        if ([key isEqualToString:originKey]) {
+            [codingKey appendWithTabLevel:2 format:@"case %@", key];
+        } else {
+            [codingKey appendWithTabLevel:2 format:@"case %@ = \"%@\"", key, originKey];
+        }
+        if (self.hasKeyCodingExt) {
+            if (isObject) {
+                if ([keyType containsString:@"]"]) { // is array
+                    [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultType: %@.self) ?? []", key, key, keyType];
+                } else {
+                    [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultType: %@.self)", key, key, keyType];
+                }
+            }
+            else {
+                [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultValue: %@)", key, key, [self getDefaultValueFor:keyType]];
             }
         }
         else {
-            [decoder appendWithTabLevel:2 format:@"%@ = container.decode(.%@, defaultValue: %@)", key, key, [self getDefaultValueFor:keyType]];
+            [decoder appendWithTabLevel:2 format:@"%@ = try container.decode(%@.self, forKey: .%@)", key, keyType, key];
         }
+        break;
     }
-    else {
-        [decoder appendWithTabLevel:2 format:@"%@ = try container.decode(%@.self, forKey: .%@)", key, keyType, key];
+        
+    case CodeLanguageObjectiveC: {
+        if (components.count <= 1) return;
+        NSMutableString *decoder = (NSMutableString *)components[1];
+        NSString *key = originKey.asCamelCase;
+        if (isObject) {
+            if ([keyType containsString:@"]"]) { // is array
+                [decoder appendWithTabLevel:1 format:@"self.%@ = @[];", key];
+            } else {
+                [decoder appendWithTabLevel:1 format:@"self.%@ = [[%@ alloc] initWithDatasource:datasource[@\"%@\"]];", key, keyType, originKey];
+            }
+        } else {
+            [decoder appendWithTabLevel:1 format:@"self.%@ = datasource[@\"%@\"];", key, originKey];
+            [decoder appendWithTabLevel:1 format:@"if (!self.%@) {", key];
+            [decoder appendWithTabLevel:2 format:@"self.%@ = %@;", key, [self getDefaultValueFor:keyType]];
+            [decoder appendWithTabLevel:1 format:@"}"];
+        }
+        break;
+    }
     }
 }
 
 -(NSString *)getDefaultValueFor:(NSString *)type {
     if ([type isEqualToString:@"String"]) {
-        return @"\"\"";
+        return self.language == CodeLanguageSwift ? @"\"\"" : @"@\"\"";
     }
     else if ([type isEqualToString:@"Int"]) {
-        return @"0";
+        return self.language == CodeLanguageSwift ? @"0" : @"@0";
     }
     else if ([type isEqualToString:@"Bool"]) {
         return @"false";
@@ -270,93 +310,97 @@
              [type isEqualToString:@"Float"] ||
              [type isEqualToString:@"CGFloat"])
     {
-        return @"0.0";
+        return self.language == CodeLanguageSwift ? @"0.0" : @"@0";
     }
     return type;
 }
-    
+
 -(NSString *)generateObjectProperty:(NSString *)object keyName:(NSString *)originKeyName {
     NSString *property = @"";
-    NSString *keyName = [originKeyName convertToSnakeFormat];
+    NSString *keyName = originKeyName.asCamelCase;
     switch (self.language) {
-        case CodeLanguageObjectiveC: {
-            property = [NSString stringWithFormat:@"@property (nonatomic, strong) %@ *%@;\n", object, keyName];
-        }
-            break;
-            
-        case CodeLanguageSwift: {
-            property = [NSString stringWithFormat:@"\tlet %@: %@?\n", keyName, object];
-        }
-            break;
-            
-        default:
-            break;
+    case CodeLanguageObjectiveC: {
+        property = [NSString stringWithFormat:@"@property (nonatomic, strong) %@ *%@;\n", object, keyName];
+    }
+        break;
+        
+    case CodeLanguageSwift: {
+        property = [NSString stringWithFormat:@"\tlet %@: %@?\n", keyName, object];
+    }
+        break;
+        
+    default:
+        break;
     }
     return property;
 }
 
 -(NSString *)gennerateArrayProperty:(NSString *)originKeyName {
     NSString *property = @"";
-    NSString *keyName = [originKeyName convertToSnakeFormat];
+    NSString *keyName = originKeyName.asCamelCase;
     switch (self.language) {
-        case CodeLanguageObjectiveC: {
-            property = [NSString stringWithFormat:@"@property (nonatomic, strong) NSArray *%@;\n", keyName];
-        }
-            break;
-            
-        case CodeLanguageSwift: {
-            property = [NSString stringWithFormat:@"\tlet %@: [Any]\n", keyName];
-        }
-            break;
-            
-        default:
-            break;
+    case CodeLanguageObjectiveC: {
+        property = [NSString stringWithFormat:@"@property (nonatomic, strong) NSArray *%@;\n", keyName];
+    }
+        break;
+        
+    case CodeLanguageSwift: {
+        property = [NSString stringWithFormat:@"\tlet %@: [Any]\n", keyName];
+    }
+        break;
+        
+    default:
+        break;
     }
     return property;
 }
 
 -(NSString *)generateCommonPropertyForType:(NSString *)type keyName:(NSString *)originKeyName keyType:(NSString **)keyType {
     NSString *property = @"";
-    NSString *keyName = [originKeyName convertToSnakeFormat];
+    NSString *keyName = originKeyName.asCamelCase;
     switch (self.language) {
-        case CodeLanguageSwift: {
-            if ([type containsString:@"String"]) {
-                property = [NSString stringWithFormat:@"\tlet %@: String\n", keyName];
-                *keyType = @"String";
-            }
-            else if ([type containsString:@"Bool"]) {
-                property = [NSString stringWithFormat:@"\tlet %@: Bool\n", keyName];
-                *keyType = @"Bool";
-            }
-            else if ([type containsString:@"Number"]) {
-                property = [NSString stringWithFormat:@"\tlet %@: Int\n", keyName];
-                *keyType = @"Int";
-            }
-            else {
-                property = [NSString stringWithFormat:@"\tlet %@: Any\n", keyName];
-                *keyType = @"Any";
-            }
+    case CodeLanguageSwift: {
+        if ([type containsString:@"String"]) {
+            property = [NSString stringWithFormat:@"\tlet %@: String\n", keyName];
+            *keyType = @"String";
         }
-            break;
-            
-        case CodeLanguageObjectiveC: {
-            if ([type containsString:@"String"]) {
-                property = [NSString stringWithFormat:@"@property (nonatomic, copy) NSString *%@;\n", keyName];
-            }
-            else if ([type containsString:@"Bool"]) {
-                property = [NSString stringWithFormat:@"@property (nonatomic, assign) BOOL %@;\n", keyName];
-            }
-            else if ([type containsString:@"Number"]) {
-                property = [NSString stringWithFormat:@"@property (nonatomic, strong) NSNumber *%@;\n", keyName];
-            }
-            else {
-                property = [NSString stringWithFormat:@"@property (nonatomic, strong) UnknownKey *%@;\n", keyName];
-            }
+        else if ([type containsString:@"Bool"]) {
+            property = [NSString stringWithFormat:@"\tlet %@: Bool\n", keyName];
+            *keyType = @"Bool";
         }
-            break;
-            
-        default:
-            break;
+        else if ([type containsString:@"Number"]) {
+            property = [NSString stringWithFormat:@"\tlet %@: Int\n", keyName];
+            *keyType = @"Int";
+        }
+        else {
+            property = [NSString stringWithFormat:@"\tlet %@: Any\n", keyName];
+            *keyType = @"Any";
+        }
+    }
+        break;
+        
+    case CodeLanguageObjectiveC: {
+        if ([type containsString:@"String"]) {
+            property = [NSString stringWithFormat:@"@property (nonatomic, copy) NSString *%@;\n", keyName];
+            *keyType = @"String";
+        }
+        else if ([type containsString:@"Bool"]) {
+            property = [NSString stringWithFormat:@"@property (nonatomic, assign) BOOL %@;\n", keyName];
+            *keyType = @"Bool";
+        }
+        else if ([type containsString:@"Number"]) {
+            property = [NSString stringWithFormat:@"@property (nonatomic, strong) NSNumber *%@;\n", keyName];
+            *keyType = @"Int";
+        }
+        else {
+            property = [NSString stringWithFormat:@"@property (nonatomic, strong) id *%@;\n", keyName];
+            *keyType = @"Any";
+        }
+    }
+        break;
+        
+    default:
+        break;
     }
     return property;
 }

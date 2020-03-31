@@ -26,7 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSString(App)
 
--(NSString *)convertToSnakeFormat;
+@property (nonatomic, copy, readonly) NSString *asCamelCase;
+@property (nonatomic, copy, readonly) NSString *asUpperCamelCase;
 
 @end
 

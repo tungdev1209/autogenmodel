@@ -42,7 +42,15 @@
 
 @implementation NSString(App)
 
--(NSString *)convertToSnakeFormat {
+-(NSString *)asUpperCamelCase {
+    return [self convertToCamelCaseWithUpper:YES];
+}
+
+-(NSString *)asCamelCase {
+    return [self convertToCamelCaseWithUpper:NO];
+}
+
+-(NSString *)convertToCamelCaseWithUpper:(BOOL)upper {
     NSArray *components = [self componentsSeparatedByString:@"_"];
     if (components.count == 0) {return self;}
     NSMutableString *result;
@@ -51,9 +59,7 @@
         NSString *firstChar = [str substringToIndex:1];
         
         if (!result) { // this str is the first string in list
-            if ([[firstChar uppercaseString] isEqualToString:firstChar]) {
-                firstChar = firstChar.lowercaseString;
-            }
+            firstChar = upper ? firstChar.uppercaseString : firstChar.lowercaseString;
         } else {
             if ([[firstChar lowercaseString] isEqualToString:firstChar]) {
                 firstChar = firstChar.uppercaseString;
